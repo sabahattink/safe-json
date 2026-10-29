@@ -26,6 +26,29 @@ describe('safeParse', () => {
     });
     expect(result).toEqual({ val: 10 });
   });
+
+  it('should return fallback for empty or whitespace-only input', () => {
+    expect(safeParse('', { fallback: 'fb' })).toBe('fb');
+    expect(safeParse('   ', { fallback: 'fb' })).toBe('fb');
+  });
+
+  it('should return fallback when the reviver throws', () => {
+    const result = safeParse('{"a": 1}', {
+      fallback: 'fb',
+      reviver: () => {
+        throw new Error('boom');
+      },
+    });
+    expect(result).toBe('fb');
+  });
+
+  it('should return fallback for non-string input instead of coercing it', () => {
+    // e.g. safeParse(localStorage.getItem('key'), { fallback: [] }) from plain JS
+    expect(safeParse(null as unknown as string, { fallback: [] })).toEqual([]);
+    expect(safeParse(undefined as unknown as string, { fallback: 'fb' })).toBe('fb');
+    expect(safeParse(123 as unknown as string, { fallback: 'fb' })).toBe('fb');
+    expect(safeParse(null as unknown as string)).toBeUndefined();
+  });
 });
 
 describe('safeStringify', () => {
@@ -49,6 +72,24 @@ describe('safeStringify', () => {
     const result = safeStringify({ a: 1 }, { pretty: true });
     expect(result).toBe('{\n  "a": 1\n}');
   });
+
+  it('should return fallback for BigInt values', () => {
+    expect(safeStringify({ a: BigInt(1) }, { fallback: '{}' })).toBe('{}');
+  });
+
+  it('should support replacer function', () => {
+    const result = safeStringify({ a: 1, b: 2 }, {
+      replacer: (key, value) => (key === 'b' ? undefined : value),
+    });
+    expect(result).toBe('{"a":1}');
+  });
+
+  it('should return fallback when the value produces no JSON', () => {
+    expect(safeStringify(undefined, { fallback: 'null' })).toBe('null');
+    expect(safeStringify(() => 1, { fallback: 'null' })).toBe('null');
+    expect(safeStringify(Symbol('s'), { fallback: 'null' })).toBe('null');
+    expect(safeStringify(undefined)).toBeUndefined();
+  });
 });
 
 describe('isJSON', () => {
@@ -62,6 +103,13 @@ describe('isJSON', () => {
   it('should return false for invalid JSON', () => {
     expect(isJSON('not json')).toBe(false);
     expect(isJSON('{incomplete')).toBe(false);
+    expect(isJSON('')).toBe(false);
+  });
+
+  it('should return false for non-string input', () => {
+    expect(isJSON(null as unknown as string)).toBe(false);
+    expect(isJSON(123 as unknown as string)).toBe(false);
+    expect(isJSON(undefined as unknown as string)).toBe(false);
   });
 });
 
