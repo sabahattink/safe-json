@@ -98,7 +98,7 @@ console.log(original.nested.value); // 1 (unchanged)
 
 ### safeParse(input, options?)
 
-Parse a JSON string safely. Returns `undefined` (or `fallback`) on error.
+Parse a JSON string safely. Returns `undefined` (or `fallback`) on error or when `input` is not a string (e.g. `null` from `localStorage.getItem`).
 
 #### input
 
@@ -114,17 +114,17 @@ Value to return when parsing fails.
 
 #### options.reviver
 
-Type: `(key: string, value: any) => any`
+Type: `(key: string, value: unknown) => unknown`
 
 A reviver function, same as `JSON.parse`'s second argument.
 
 ### safeStringify(value, options?)
 
-Stringify a value safely. Returns `undefined` (or `fallback`) on error.
+Stringify a value safely. Returns `undefined` (or `fallback`) on error (circular references, BigInt) or when the value has no JSON representation (`undefined`, functions, symbols).
 
 #### value
 
-Type: `any`
+Type: `unknown`
 
 The value to stringify.
 
@@ -137,7 +137,7 @@ Indent output with 2 spaces.
 
 #### options.replacer
 
-Type: `(key: string, value: any) => any`
+Type: `(key: string, value: unknown) => unknown`
 
 A replacer function, same as `JSON.stringify`'s second argument.
 

@@ -21,6 +21,14 @@
   "keywords": ["json", "safe", "parse", "stringify", "no-throw"],
   "author": "Scuton Technology",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scuton-technology/safe-json.git"
+  },
+  "homepage": "https://github.com/scuton-technology/safe-json#readme",
+  "bugs": {
+    "url": "https://github.com/scuton-technology/safe-json/issues"
+  },
   "devDependencies": {
     "typescript": "^5.6.0",
     "tsup": "^8.0.0",
